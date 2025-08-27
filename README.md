@@ -3,9 +3,6 @@
 
 # ShodanParser — Shodan JSON ➜ Clean CSV for Threat Hunting
 
-Convert messy **Shodan JSON output** into clean, structured **CSV** with filters and a preview table.  
-Built for threat hunters, researchers, and analysts who need to quickly make sense of Shodan data.
-
 🔗 **Live Demo (GitHub Pages):**  
 [https://github.com/purplestrike/ShodanParser/](https://purplestrike.github.io/ShodanParser/)
 
