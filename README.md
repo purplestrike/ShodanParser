@@ -8,6 +8,7 @@ Built for threat hunters, researchers, and analysts who need to quickly make sen
 
 🔗 **Live Demo (GitHub Pages):**  
 [https://github.com/purplestrike/ShodanParser/](https://github.com/purplestrike/ShodanParser/)
+[https://github.com/purplestrike/ShodanParser/](https://purplestrike.github.io/ShodanParser/)
 
 
 ## 🔑 Key Features
