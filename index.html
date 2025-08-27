@@ -73,6 +73,19 @@
     <!-- Output Area -->
     <textarea id="beautifyOutput" placeholder="Result will appear here..." readonly></textarea>
   </main>
+<!-- Mini Summary (unique counts from current results) -->
+<section id="miniSummary" style="display:none; padding:0.6rem 1rem;">
+  <div class="summary-grid">
+    <div class="pill">IP: <span id="sum_ip">0</span></div>
+    <div class="pill">Domain(s): <span id="sum_domains">0</span></div>
+    <div class="pill">Ports: <span id="sum_ports">0</span></div>
+    <div class="pill">City: <span id="sum_cities">0</span></div>
+    <div class="pill">Organization: <span id="sum_orgs">0</span></div>
+    <div class="pill">Vulnerabilities: <span id="sum_vulns">0</span></div>
+    <div class="pill">Products: <span id="sum_products">0</span></div>
+    <div class="pill">Versions: <span id="sum_versions">0</span></div>
+  </div>
+</section>
 
   <!-- CSV Preview -->
   <section id="csvPreviewSection" style="display:none; padding: 1rem;">
