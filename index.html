@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shodan Parser</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- Header -->
+<header>
+  <h1>Shodan Parser</h1>
+  <p class="subtitle">
+    Convert messy Shodan JSON into clean, structured CSV.<br/>
+    Quickly filter, search, and export insights for threat hunting.
+  </p>
+</header>
+
+  <!-- Message Center -->
+  <section id="messages" aria-live="polite"></section>
+
+  <!-- Toolbar -->
+<div class="toolbar">
+  <button onclick="beautifyJSON()">Beautify JSON</button>
+  <button onclick="validateJSON()">Validate JSON</button>
+  <button onclick="uploadJSON()">Upload JSON</button>
+
+  <!-- NEW tiny Search button -->
+  <button id="searchBtn" onclick="runSearch()">🔎</button>
+
+  <button onclick="clearText()">Clear</button>
+  <button onclick="extractToCSV()">Extract & Download CSV</button>
+  <input type="file" id="fileInput" accept=".json" style="display:none" />
+  <a id="downloadLink" style="display:none">Download CSV</a>
+</div>
+
+  <!-- Field Selector -->
+  <div class="field-selector">
+    <strong>Quick Fields:</strong>
+    <label><input type="checkbox" id="field_ip" checked> IP</label>
+    <label><input type="checkbox" id="field_domain" checked> Domain(s)</label>
+    <label><input type="checkbox" id="field_ports" checked> Ports</label>
+    <label><input type="checkbox" id="field_city" checked> City</label>
+    <label><input type="checkbox" id="field_org" checked> Organization</label>
+    <label><input type="checkbox" id="field_vulns" checked> Vulnerabilities</label>
+    <label><input type="checkbox" id="field_webtech" checked> Products</label>
+    <label><input type="checkbox" id="field_versions" checked> Versions</label>
+  </div>
+
+  <!-- Advanced (kept only for Filters UI; Advanced Fields removed) -->
+  <section class="advanced">
+    <div class="advanced__row">
+      <!-- Removed the Advanced Fields column to eliminate that feature -->
+
+      <div class="advanced__col">
+        <h3>Filters</h3>
+        <p class="muted">Include rows containing ALL of these terms (case-insensitive):</p>
+        <input id="includeFilter" class="textline" placeholder="e.g., 443; nginx; ssl" />
+        <p class="muted">Exclude rows containing ANY of these terms:</p>
+        <input id="excludeFilter" class="textline" placeholder="e.g., telnet; ftp" />
+        <div class="tiny muted">Terms are split by <code>;</code>. Filtering is applied to the CSV row string.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Editor Layout -->
+  <main class="editor">
+    <!-- Input Area -->
+    <textarea id="beautifyInput" placeholder="Paste JSON here..."></textarea>
+
+    <!-- Output Area -->
+    <textarea id="beautifyOutput" placeholder="Result will appear here..." readonly></textarea>
+  </main>
+
+  <!-- CSV Preview -->
+  <section id="csvPreviewSection" style="display:none; padding: 1rem;">
+    <h2>CSV Preview</h2>
+    <div id="csvPreview"></div>
+  </section>
+
+  <!-- Error details (collapsible) -->
+  <details id="errorDetails" class="error-details" style="display:none;">
+    <summary>Parser error details</summary>
+    <pre id="errorDump"></pre>
+  </details>
+
+  <script src="script.js" defer></script>
+
+</body>
+</html>
