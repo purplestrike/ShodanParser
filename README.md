@@ -1,92 +1,160 @@
-# 🕵️‍♂️ ShodanParser
-*Turn Shodan data chaos into clean CSV for threat hunting.*
 
-# ShodanParser — Shodan JSON ➜ Clean CSV for Threat Hunting
+# 🕵️‍♂️ ShodanParser — Turn Shodan JSON Chaos into Actionable Intelligence
 
-Convert messy **Shodan JSON output** into clean, structured **CSV** with filters and a preview table.  
-Built for threat hunters, researchers, and analysts who need to quickly make sense of Shodan data.
-
-🔗 **Live Demo (GitHub Pages):**  
-[https://github.com/purplestrike/ShodanParser/](https://purplestrike.github.io/ShodanParser/)
-
-
-## 🔑 Key Features
-
-### 1. JSON Beautify
-- Pretty-prints your raw Shodan JSON for easier reading.
-- Detects and **auto-fixes** common issues:
-  - Smart quotes → standard quotes  
-  - Unquoted keys → quoted keys  
-  - Trailing commas → removed  
-  - Single quotes → double quotes  
-- If auto-fix succeeds, corrected JSON is shown in the editor.
-
-### 2. JSON Validation
-- Checks if your JSON is valid.  
-- Displays clear **error messages** with line/column hints.  
-- Highlights the exact error location in the editor for quick fixes.  
-- If possible, the auto-fix engine repairs errors and marks JSON as valid.
-
-### 3. File Upload Support
-- Upload `.json` files exported from Shodan directly.  
-- Supports large files and **JSON Lines (NDJSON)** format.  
-- Automatically applies the same validation and auto-fix logic as paste input.
-
-### 4. Quick Field Toggles
-- One-click extraction of common Shodan fields into CSV:
-  - **IP** (`ip_str`)
-  - **Domain(s)** (hostnames, domains, HTTP host)
-  - **Ports**
-  - **City** (from `location.city`)
-  - **Organization** (org/isp/asn)
-  - **Vulnerabilities** (CVE list)
-  - **Web Technologies** (products, components, servers)
-  - **Versions** (software/service versions)
-
-### 5. Filtering
-- Two types of filters applied at row-level before CSV export:
-  - **Include filter**: Row must contain *all* specified terms.
-  - **Exclude filter**: Row must *not* contain any of the terms.
-- Case-insensitive and supports multiple terms separated by `;`.
-
-### 6. CSV Preview & Download
-- After extraction, results are displayed in a **live preview table**.
-- Preview reflects:
-  - Expanded rows (multiple rows if multiple CVEs are present).
-  - All selected quick fields and filters.
-- Single-click **Download CSV** for use in Excel, SIEM, or further analysis.
+<p align="center">
+  <b>From raw Shodan JSON ➜ clean CSV/XLSX for fast threat hunting.</b><br/>
+  <a href="https://purplestrike.github.io/ShodanParser/">🌐 Live Demo</a> ·
+  <a href="#-key-features">✨ Features</a> ·
+  <a href="#-usage">🚀 Usage</a> ·
+  <a href="#-faq">❓ FAQ</a>
+</p>
 
 ---
 
-## 🛠 Step by Step Usage
+## ✨ Why ShodanParser?
+Security researchers often export Shodan results as large, messy JSON. ShodanParser converts that into **clean, filtered, and structured** data you can immediately use — **no backend, 100% client-side**.
+
+---
+
+## 🔑 Key Features
+
+### 🧼 1) JSON Beautify & Auto‑Fix
+- Pretty‑prints your raw Shodan JSON.
+- Smart, safe auto‑fixes for common issues:
+  - “Smart quotes” → standard quotes
+  - Unquoted keys → quoted
+  - Trailing commas → removed
+  - Single quotes → double quotes
+- If auto‑fix succeeds, the corrected JSON is shown in the editor.
+
+### ✅ 2) JSON Validation
+- Validates JSON and shows **clear errors** with **line/column** hints.
+- Highlights approximate error position in the editor.
+- When possible, auto‑repairs and marks as valid.
+
+### ⬆️ 3) File Upload
+- Upload `.json` files exported from Shodan.
+- Supports **NDJSON/JSON Lines**.
+- Same beautify + validation pipeline applies.
+
+### 🎛️ 4) Quick Field Toggles
+Extract only what you need:
+- **IP** (`ip_str`)
+- **Domain(s)** (hostnames, domains, HTTP host)
+- **Ports**
+- **City** (`location.city`)
+- **Organization** (org/isp/asn)
+- **Vulnerabilities** (CVE list)
+- **Web Technologies** (products/components/server banners)
+- **Versions** (software/service versions)
+
+### 🔎 5) Powerful Filtering
+- **Include** filter → Row must contain **all** terms.
+- **Exclude** filter → Row must contain **none** of the terms.
+- Case‑insensitive; separate multiple terms with `;`.
+
+### 👀 6) Live Preview
+- See results in a styled table before download.
+- Multi‑value fields (e.g., many CVEs) are expanded as multiple rows.
+
+### 🧮 7) Mini Summary (Unique Counts) — *New*
+Above the preview you get **unique counts** for the fields you selected:
+> **IP**, **Domain(s)**, **Ports**, **City**, **Organization**, **Vulnerabilities**, **Products**, **Versions**  
+Counts are computed **after filters**, so they match exactly what you see.
+
+### 📦 8) True Excel Export (.xlsx) with Merge & Center — *New*
+- Download a real **`.xlsx`** workbook (no warnings) built entirely in‑browser.
+- **IP** and **Organization** cells are **merged & centered** across multi‑row groups (e.g., many CVEs or domains per host) — mirroring the preview.
+- Great for sharing and executive reporting.
+
+### 📄 9) CSV Export
+- Standard CSV for quick analysis in Excel, SIEM, or further scripting.
+- Note: CSV format doesn’t support merged cells; use **XLSX** for that layout.
+
+---
+
+## 🚀 Usage
 
 1. **Open the tool**  
-   Visit [ShodanParser](https://purplestrike.github.io/ShodanParser/).
+   👉 <a href="https://purplestrike.github.io/ShodanParser/">https://purplestrike.github.io/ShodanParser/</a>
 
 2. **Paste or Upload JSON**  
-   - Paste JSON into the left editor, or  
-   - Click **Upload JSON** to import a `.json` file.
+   - Paste into the left editor, or  
+   - Click **Upload JSON** and select a Shodan `.json` file.
 
-3. **Beautify (Optional)**  
-   Click **Beautify** to format the JSON for readability.  
-   Any auto-fix corrections are applied instantly.
+3. **Beautify** *(optional)*  
+   - Click **Beautify** to format and auto‑fix.
 
-4. **Validate (Optional)**  
-   Click **Validate** to check if JSON is valid.  
-   Errors are highlighted with exact position info.
+4. **Validate** *(optional)*  
+   - Click **Validate** to confirm correctness; errors show with line/column info.
 
-5. **Select Fields**  
-   Use **Quick Fields** checkboxes to extract standard fields like IP, Ports, Domains, etc.
+5. **Choose Your Fields**  
+   - Tick **Quick Fields** (IP, Ports, Domains, etc.).
 
-6. **Apply Filters (Optional)**  
-- Add **Include terms**: e.g., `443; nginx; ssl`  
-- Add **Exclude terms**: e.g., `ftp; telnet`  
-Rows are filtered before export.
+6. **Apply Filters** *(optional)*  
+   - **Include**: e.g., `443; nginx; ssl`  
+   - **Exclude**: e.g., `ftp; telnet`
 
-7. **Extract CSV**  
-Click **Extract & Download CSV**.  
-- Preview appears at the bottom.  
-- A **Download CSV** button is displayed.
+7. **Extract & Preview**  
+   - Click **Extract & Download CSV** to generate a live preview table.  
+   - A **Mini Summary** of **unique counts** appears above the preview.
 
-8. **Clear (Optional)**  
-Use **Clear** to reset input, output, preview, and messages.
+8. **Download**  
+   - **Download CSV** for a flat file.  
+   - **Download XLSX (merged)** for a formatted Excel sheet with **merged & centered** IP/Org columns.
+
+9. **Clear** *(optional)*  
+   - Click **Clear** to reset inputs, outputs, preview, and messages.
+
+---
+
+## 🧠 How It Works (Tech Notes)
+- 100% **client‑side** — your Shodan data **never leaves your browser**.
+- The XLSX export builds a minimal **OpenXML** workbook and zips it on the fly.
+- The preview table uses simple **rowspan** to simulate merge & center; the XLSX does the real thing with `<mergeCells>` and centered alignment.
+
+---
+
+## 🧩 Tips & Tricks
+- Turn on only the fields you need — the **Mini Summary** shows counts **only for selected fields**.
+- Combine Include/Exclude filters to narrow down technology stacks:
+  - Include: `443; nginx`
+  - Exclude: `test; staging`
+- Prefer **XLSX** when sharing with non‑technical stakeholders.
+
+---
+
+## ❓ FAQ
+
+**Q: Do counts include filtered‑out rows?**  
+**A:** No. Counts reflect **only the rows that remain after filters**.
+
+**Q: Why are IP and Organization merged?**  
+**A:** They’re host‑level attributes spanning multiple detail rows (e.g., many CVEs). Merging keeps the sheet readable.
+
+**Q: CSV doesn’t show merged cells. Is that a bug?**  
+**A:** CSV doesn’t support formatting/merges. Use **XLSX** for that presentation.
+
+---
+
+## 🛠 Local Dev (VS Code)
+- Open the folder in VS Code and use **Live Server** (or just open `index.html` in a browser).
+- No backend required.
+
+---
+
+## 🌐 Deploy on GitHub Pages
+1. Push to GitHub (branch: `main`).  
+2. Repo → **Settings** → **Pages** → **Deploy from a branch** → `main` / root.  
+3. Your app will be available at:  
+   `https://purplestrike.github.io/ShodanParser/`
+
+---
+
+## 🤝 Contributing
+PRs are welcome! Open an issue for bugs/ideas.
+
+---
+
+## 📜 License
+MIT © Purple Strike

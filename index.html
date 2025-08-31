@@ -8,33 +8,48 @@
 </head>
 
 <body>
+  <!-- Purple Strike logo -->
+  <a href="#" class="ps-logo-wrap" aria-label="Purple Strike">
+    <img src="purple_strike_logo_transparent.png" alt="Purple Strike logo" class="ps-logo">
+  </a>
 
   <!-- Header -->
-<header>
-  <h1>Shodan Parser</h1>
-  <p class="subtitle">
-    Convert messy Shodan JSON into clean, structured CSV.<br/>
-    Quickly filter, search, and export insights for threat hunting.
-  </p>
-</header>
+  <header>
+    <h1>Shodan Parser</h1>
+    <p class="subtitle">
+      Convert messy Shodan JSON into clean, structured CSV.<br/>
+      Quickly filter, search (preview), and export insights (CSV/XLSX).
+    </p>
+  </header>
 
-  <!-- Message Center -->
+  <!-- Messages -->
   <section id="messages" aria-live="polite"></section>
 
-  <!-- Toolbar -->
-<div class="toolbar">
-  <button onclick="beautifyJSON()">Beautify JSON</button>
-  <button onclick="validateJSON()">Validate JSON</button>
-  <button onclick="uploadJSON()">Upload JSON</button>
-
-  <!-- NEW tiny Search button -->
-  <button id="searchBtn" onclick="runSearch()">🔎</button>
-
-  <button onclick="clearText()">Clear</button>
-  <button onclick="extractToCSV()">Extract & Download CSV</button>
-  <input type="file" id="fileInput" accept=".json" style="display:none" />
-  <a id="downloadLink" style="display:none">Download CSV</a>
+  <!-- Progress bar -->
+<div id="progressWrap" class="progress" style="display:none">
+  <div id="progressBar" class="progress__bar" style="width:0%"></div>
+  <!-- Either of these is fine -->
+  <div id="progressLabel" class="progress__text">0%</div>
+  <!-- or -->
+  <!-- <div id="progressText"  class="progress__text">0%</div> -->
 </div>
+
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button id="btnBeautify" type="button">Beautify JSON</button>
+    <button id="btnValidate" type="button">Validate JSON</button>
+    <button id="btnUpload"   type="button">Upload JSON</button>
+
+    <!-- IMPORTANT: these ids are used by the script logic -->
+    <button id="btnSearch"   type="button">Search (Preview Only)</button>
+    <button id="btnClear"    type="button">Clear</button>
+    <button id="btnExtract"  type="button">Extract & Download</button>
+
+    <input type="file" id="fileInput" accept=".json" style="display:none" />
+    <a id="downloadLink" style="display:none">Download CSV</a>
+    <a id="excelLink" style="display:none">Download XLSX (merged)</a>
+  </div>
 
   <!-- Field Selector -->
   <div class="field-selector">
@@ -49,57 +64,53 @@
     <label><input type="checkbox" id="field_versions" checked> Versions</label>
   </div>
 
-  <!-- Advanced (kept only for Filters UI; Advanced Fields removed) -->
+  <!-- Filters -->
   <section class="advanced">
     <div class="advanced__row">
-      <!-- Removed the Advanced Fields column to eliminate that feature -->
-
       <div class="advanced__col">
         <h3>Filters</h3>
         <p class="muted">Include rows containing ALL of these terms (case-insensitive):</p>
         <input id="includeFilter" class="textline" placeholder="e.g., 443; nginx; ssl" />
         <p class="muted">Exclude rows containing ANY of these terms:</p>
         <input id="excludeFilter" class="textline" placeholder="e.g., telnet; ftp" />
-        <div class="tiny muted">Terms are split by <code>;</code>. Filtering is applied to the CSV row string.</div>
+        <div class="tiny muted">Terms are split by <code>;</code>. Filtering is applied to each CSV row string.</div>
       </div>
     </div>
   </section>
 
-  <!-- Editor Layout -->
+  <!-- Editors -->
   <main class="editor">
-    <!-- Input Area -->
-    <textarea id="beautifyInput" placeholder="Paste JSON here..."></textarea>
-
-    <!-- Output Area -->
-    <textarea id="beautifyOutput" placeholder="Result will appear here..." readonly></textarea>
+    <textarea id="beautifyInput" placeholder="Paste Shodan JSON here..."></textarea>
+    <textarea id="beautifyOutput" placeholder="Beautified/validation output..." readonly></textarea>
   </main>
-<!-- Mini Summary (unique counts from current results) -->
-<section id="miniSummary" style="display:none; padding:0.6rem 1rem;">
-  <div class="summary-grid">
-    <div class="pill">IP: <span id="sum_ip">0</span></div>
-    <div class="pill">Domain(s): <span id="sum_domains">0</span></div>
-    <div class="pill">Ports: <span id="sum_ports">0</span></div>
-    <div class="pill">City: <span id="sum_cities">0</span></div>
-    <div class="pill">Organization: <span id="sum_orgs">0</span></div>
-    <div class="pill">Vulnerabilities: <span id="sum_vulns">0</span></div>
-    <div class="pill">Products: <span id="sum_products">0</span></div>
-    <div class="pill">Versions: <span id="sum_versions">0</span></div>
-  </div>
-</section>
 
-  <!-- CSV Preview -->
+  <!-- Summary -->
+  <section id="miniSummary" style="display:none; padding:0.6rem 1rem;">
+    <div class="summary-grid">
+      <div class="pill">IP: <span id="sum_ip">0</span></div>
+      <div class="pill">Domain(s): <span id="sum_domains">0</span></div>
+      <div class="pill">Ports: <span id="sum_ports">0</span></div>
+      <div class="pill">City: <span id="sum_cities">0</span></div>
+      <div class="pill">Organization: <span id="sum_orgs">0</span></div>
+      <div class="pill">Vulnerabilities: <span id="sum_vulns">0</span></div>
+      <div class="pill">Products: <span id="sum_products">0</span></div>
+      <div class="pill">Versions: <span id="sum_versions">0</span></div>
+      <div class="pill">Web Tech: <span id="sum_webtech">0</span></div>
+    </div>
+  </section>
+
+  <!-- Preview -->
   <section id="csvPreviewSection" style="display:none; padding: 1rem;">
-    <h2>CSV Preview</h2>
+    <h2>Preview</h2>
     <div id="csvPreview"></div>
   </section>
 
-  <!-- Error details (collapsible) -->
+  <!-- Error details -->
   <details id="errorDetails" class="error-details" style="display:none;">
     <summary>Parser error details</summary>
     <pre id="errorDump"></pre>
   </details>
 
-  <script src="script.js" defer></script>
-
+  <script src="script.js"></script>
 </body>
 </html>
