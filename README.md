@@ -128,17 +128,6 @@ docs/
 
 ---
 
-## 🛣️ Roadmap
-- [ ] Field mapping presets (e.g., “Asset Overview”, “Web Tech”, “Vuln Focus”)
-- [ ] Export to **Parquet** and **JSONL** in addition to CSV/XLSX
-- [ ] Save/Load user filter profiles (local storage)
-- [ ] Pinned columns & column re‑ordering in preview
-- [ ] Dark/light theme switch
-- [ ] Drag‑drop file upload
-- [ ] Offline PWA support
-
----
-
 ## 🐞 Troubleshooting
 - **Workers blocked on file://** → Serve the folder locally (see _Quick Start_).
 - **“Invalid JSON — auto‑fix couldn’t recover.”** → Check if the file is truncated; try **Beautify** first.
