@@ -128,16 +128,6 @@ docs/
 
 ---
 
-## 🧩 Keyboard Shortcuts
-- **Ctrl/Cmd + B** → Beautify
-- **Ctrl/Cmd + V** → Validate
-- **Ctrl/Cmd + E** → Extract & Download
-- **Ctrl/Cmd + /** → Toggle error details (if visible)
-
-> (Bind these in future versions — see Roadmap.)
-
----
-
 ## 🛣️ Roadmap
 - [ ] Field mapping presets (e.g., “Asset Overview”, “Web Tech”, “Vuln Focus”)
 - [ ] Export to **Parquet** and **JSONL** in addition to CSV/XLSX
