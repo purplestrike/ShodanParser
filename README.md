@@ -1,160 +1,199 @@
-
-# 🕵️‍♂️ ShodanParser — Turn Shodan JSON Chaos into Actionable Intelligence
+# 🕵️‍♂️ ShodanParser — From Shodan JSON to Actionable CSV/XLSX
 
 <p align="center">
-  <b>From raw Shodan JSON ➜ clean CSV/XLSX for fast threat hunting.</b><br/>
-  <a href="https://purplestrike.github.io/ShodanParser/">🌐 Live Demo</a> ·
-  <a href="#-key-features">✨ Features</a> ·
-  <a href="#-usage">🚀 Usage</a> ·
-  <a href="#-faq">❓ FAQ</a>
+  <img src="purple_strike_logo_transparent.png" alt="Purple Strike" width="160"/>
+</p>
+
+<p align="center">
+  <b>Client‑side Shodan JSON ➜ clean CSV/XLSX with live preview, filters, and summaries.</b><br/>
+  <a href="https://purplestrike.github.io/ShodanParser/"><b>🌐 Live Demo</b></a> ·
+  <a href="#-features"><b>✨ Features</b></a> ·
+  <a href="#-quick-start"><b>🚀 Quick Start</b></a> ·
+  <a href="#-usage"><b>🧭 Usage</b></a> ·
+  <a href="#-faq"><b>❓ FAQ</b></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/purplestrike/ShodanParser/releases"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/purplestrike/ShodanParser?style=for-the-badge"></a>
+  <a href="https://github.com/purplestrike/ShodanParser/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/purplestrike/ShodanParser?style=for-the-badge"></a>
+  <a href="https://github.com/purplestrike/ShodanParser/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/purplestrike/ShodanParser?style=for-the-badge"></a>
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-blueviolet?style=for-the-badge">
+  <img alt="Status" src="https://img.shields.io/badge/status-active-success?style=for-the-badge">
 </p>
 
 ---
 
-## ✨ Why ShodanParser?
-Security researchers often export Shodan results as large, messy JSON. ShodanParser converts that into **clean, filtered, and structured** data you can immediately use — **no backend, 100% client-side**.
+## 👋 Overview
+**ShodanParser** is a lightweight, **100% client‑side** utility that converts raw, messy **Shodan JSON** into **structured CSV/XLSX** for fast triage, reporting, and threat hunting. Paste JSON or upload a file, select the fields you need, filter results, preview live, and export in seconds — **no server, no data leaves your browser**.
+
+> Built as part of **Purple Strike** — sharing tools and research with the cybersecurity community.
 
 ---
 
-## 🔑 Key Features
+## ✨ Features
+- **🧼 Beautify & Auto‑Fix** common JSON issues (quotes, trailing commas, unquoted keys, JSONL)
+- **✅ Validate** with clear error hints (line/column) + automatic repair when possible
+- **⬆️ Upload** Shodan `.json` or **NDJSON/JSON Lines**
+- **🎚️ Quick Fields**: IP, Domains, Ports, City, Organization, Vulnerabilities, Products, Versions
+- **🔎 Filters**: include/exclude terms (case‑insensitive, `;` delimited)
+- **👀 Live Preview** with readable grouping and per‑row filtering
+- **🧮 Mini Summary**: unique counts for selected fields (post‑filter)
+- **📦 Exports**
+  - **CSV** for SIEM/Excel
+  - **XLSX** (*real OpenXML*) with **merged & centered cells** for IP/Organization
+- **⚡ Fast**: Web Worker offloads heavy parsing to keep the UI smooth
+- **🔐 Private by design**: runs entirely in your browser
 
-### 🧼 1) JSON Beautify & Auto‑Fix
-- Pretty‑prints your raw Shodan JSON.
-- Smart, safe auto‑fixes for common issues:
-  - “Smart quotes” → standard quotes
-  - Unquoted keys → quoted
-  - Trailing commas → removed
-  - Single quotes → double quotes
-- If auto‑fix succeeds, the corrected JSON is shown in the editor.
+---
 
-### ✅ 2) JSON Validation
-- Validates JSON and shows **clear errors** with **line/column** hints.
-- Highlights approximate error position in the editor.
-- When possible, auto‑repairs and marks as valid.
+## 🚀 Quick Start
+### Option A — Use it online
+1. Open the **Live Demo**: https://purplestrike.github.io/ShodanParser/
+2. Paste or upload your Shodan JSON.
+3. Click **Extract & Download** to export CSV/XLSX.
 
-### ⬆️ 3) File Upload
-- Upload `.json` files exported from Shodan.
-- Supports **NDJSON/JSON Lines**.
-- Same beautify + validation pipeline applies.
+### Option B — Run locally
+```bash
+# clone
+git clone https://github.com/purplestrike/ShodanParser.git
+cd ShodanParser
 
-### 🎛️ 4) Quick Field Toggles
-Extract only what you need:
-- **IP** (`ip_str`)
-- **Domain(s)** (hostnames, domains, HTTP host)
-- **Ports**
+# serve (recommended to avoid worker issues on file://)
+# use any static server; examples:
+python -m http.server 8080
+# or
+npx serve . -p 8080
+```
+Then visit `http://localhost:8080` and open `index.html`.
+
+> ⚠️ Workers are blocked on `file://`. Use a local server for the best experience.
+
+---
+
+## 🧭 Usage
+1. **Paste / Upload JSON** (supports single JSON object, array, or JSONL).
+2. **Beautify** *(optional)* — pretty‑print and auto‑fix common issues.
+3. **Validate** *(optional)* — get clear error messages; auto‑repair when possible.
+4. **Select Fields** — toggle IP, Domains, Ports, etc.
+5. **Filter** *(optional)* — add `include` terms (all must match) and `exclude` terms (any blocks).
+6. **Search (Preview Only)** — render a preview table without download links.
+7. **Extract & Download** — preview + **CSV** and **XLSX** download links.
+8. **Mini Summary** — unique counts of selected fields, **after filters**.
+9. **Clear** — reset everything with one click.
+
+---
+
+## 🧠 How it Works
+- **Client‑only:** No backend. Your data never leaves your machine.
+- **Web Worker:** `worker.js` parses JSON, extracts fields, dedupes, applies filters, and streams progress.
+- **XLSX Builder:** Minimal **OpenXML** workbook built on the fly (no third‑party libs), with _merged_ & _centered_ IP/Org cells to mirror the preview layout.
+- **Safety:** CSV/Excel **formula‑injection** guarded by prefixing `'=+-@` values with `'` during export.
+
+### Extracted Fields (Quick Toggles)
+- **IP** (`ip_str` or numeric `ip` → dotted quad)
+- **Domain(s)** (root domains from `hostnames`, `domains`, `http.host` with public‑suffix awareness)
+- **Ports** (from `port` and nested `data[].port`)
 - **City** (`location.city`)
-- **Organization** (org/isp/asn)
-- **Vulnerabilities** (CVE list)
-- **Web Technologies** (products/components/server banners)
-- **Versions** (software/service versions)
-
-### 🔎 5) Powerful Filtering
-- **Include** filter → Row must contain **all** terms.
-- **Exclude** filter → Row must contain **none** of the terms.
-- Case‑insensitive; separate multiple terms with `;`.
-
-### 👀 6) Live Preview
-- See results in a styled table before download.
-- Multi‑value fields (e.g., many CVEs) are expanded as multiple rows.
-
-### 🧮 7) Mini Summary (Unique Counts) — *New*
-Above the preview you get **unique counts** for the fields you selected:
-> **IP**, **Domain(s)**, **Ports**, **City**, **Organization**, **Vulnerabilities**, **Products**, **Versions**  
-Counts are computed **after filters**, so they match exactly what you see.
-
-### 📦 8) True Excel Export (.xlsx) with Merge & Center — *New*
-- Download a real **`.xlsx`** workbook (no warnings) built entirely in‑browser.
-- **IP** and **Organization** cells are **merged & centered** across multi‑row groups (e.g., many CVEs or domains per host) — mirroring the preview.
-- Great for sharing and executive reporting.
-
-### 📄 9) CSV Export
-- Standard CSV for quick analysis in Excel, SIEM, or further scripting.
-- Note: CSV format doesn’t support merged cells; use **XLSX** for that layout.
+- **Organization** (`org`, `isp`, or `asn`)
+- **Vulnerabilities** (`opts.vulns[]` on host/services; CVEs normalized to uppercase)
+- **Products** (`data[].product`, `http.server`)
+- **Versions** (aligned with products)
+- **Web Technologies** (`http.components` keys, lowercased)
 
 ---
 
-## 🚀 Usage
+## 📸 Screenshots
+> Replace with your own captures.
+- **Home / Editors / Toolbar**
+- **Live Preview with Grouping & Summary**
+- **XLSX in Excel with Merged IP/Org**
 
-1. **Open the tool**  
-   👉 <a href="https://purplestrike.github.io/ShodanParser/">https://purplestrike.github.io/ShodanParser/</a>
-
-2. **Paste or Upload JSON**  
-   - Paste into the left editor, or  
-   - Click **Upload JSON** and select a Shodan `.json` file.
-
-3. **Beautify** *(optional)*  
-   - Click **Beautify** to format and auto‑fix.
-
-4. **Validate** *(optional)*  
-   - Click **Validate** to confirm correctness; errors show with line/column info.
-
-5. **Choose Your Fields**  
-   - Tick **Quick Fields** (IP, Ports, Domains, etc.).
-
-6. **Apply Filters** *(optional)*  
-   - **Include**: e.g., `443; nginx; ssl`  
-   - **Exclude**: e.g., `ftp; telnet`
-
-7. **Extract & Preview**  
-   - Click **Extract & Download CSV** to generate a live preview table.  
-   - A **Mini Summary** of **unique counts** appears above the preview.
-
-8. **Download**  
-   - **Download CSV** for a flat file.  
-   - **Download XLSX (merged)** for a formatted Excel sheet with **merged & centered** IP/Org columns.
-
-9. **Clear** *(optional)*  
-   - Click **Clear** to reset inputs, outputs, preview, and messages.
+```
+docs/
+  screenshots/
+    editor.png
+    preview.png
+    xlsx.png
+```
 
 ---
 
-## 🧠 How It Works (Tech Notes)
-- 100% **client‑side** — your Shodan data **never leaves your browser**.
-- The XLSX export builds a minimal **OpenXML** workbook and zips it on the fly.
-- The preview table uses simple **rowspan** to simulate merge & center; the XLSX does the real thing with `<mergeCells>` and centered alignment.
+## 🧪 Sample Data
+```jsonc
+// JSON Lines (NDJSON) — supported
+{"ip_str":"203.0.113.10","port":443,"org":"Example ISP","http":{"server":"nginx","host":"app.example.com","components":{"openssh":{}, "nginx":{}}},"opts":{"vulns":["CVE-2023-12345"]}}
+{"ip_str":"203.0.113.10","port":80,"http":{"host":"www.example.com"}}
+{"ip_str":"198.51.100.22","port":22,"org":"Example Org","data":[{"product":"OpenSSH","version":"8.4","port":22}]}
+```
 
 ---
 
-## 🧩 Tips & Tricks
-- Turn on only the fields you need — the **Mini Summary** shows counts **only for selected fields**.
-- Combine Include/Exclude filters to narrow down technology stacks:
-  - Include: `443; nginx`
-  - Exclude: `test; staging`
-- Prefer **XLSX** when sharing with non‑technical stakeholders.
+## 🧩 Keyboard Shortcuts
+- **Ctrl/Cmd + B** → Beautify
+- **Ctrl/Cmd + V** → Validate
+- **Ctrl/Cmd + E** → Extract & Download
+- **Ctrl/Cmd + /** → Toggle error details (if visible)
+
+> (Bind these in future versions — see Roadmap.)
 
 ---
 
-## ❓ FAQ
-
-**Q: Do counts include filtered‑out rows?**  
-**A:** No. Counts reflect **only the rows that remain after filters**.
-
-**Q: Why are IP and Organization merged?**  
-**A:** They’re host‑level attributes spanning multiple detail rows (e.g., many CVEs). Merging keeps the sheet readable.
-
-**Q: CSV doesn’t show merged cells. Is that a bug?**  
-**A:** CSV doesn’t support formatting/merges. Use **XLSX** for that presentation.
+## 🛣️ Roadmap
+- [ ] Field mapping presets (e.g., “Asset Overview”, “Web Tech”, “Vuln Focus”)
+- [ ] Export to **Parquet** and **JSONL** in addition to CSV/XLSX
+- [ ] Save/Load user filter profiles (local storage)
+- [ ] Pinned columns & column re‑ordering in preview
+- [ ] Dark/light theme switch
+- [ ] Drag‑drop file upload
+- [ ] Offline PWA support
 
 ---
 
-## 🛠 Local Dev (VS Code)
-- Open the folder in VS Code and use **Live Server** (or just open `index.html` in a browser).
-- No backend required.
-
----
-
-## 🌐 Deploy on GitHub Pages
-1. Push to GitHub (branch: `main`).  
-2. Repo → **Settings** → **Pages** → **Deploy from a branch** → `main` / root.  
-3. Your app will be available at:  
-   `https://purplestrike.github.io/ShodanParser/`
+## 🐞 Troubleshooting
+- **Workers blocked on file://** → Serve the folder locally (see _Quick Start_).
+- **“Invalid JSON — auto‑fix couldn’t recover.”** → Check if the file is truncated; try **Beautify** first.
+- **CSV opens with formulas** → Guard is enabled; values starting with `= - + @` are automatically prefixed with `'`.
 
 ---
 
 ## 🤝 Contributing
-PRs are welcome! Open an issue for bugs/ideas.
+PRs and issues are welcome! If you’re proposing a feature, describe the **use‑case**, mock up the **output**, and include a small **sample JSON**. For bugs, attach a minimal repro JSON and steps.
 
 ---
 
-## 📜 License
+## 🧱 Tech Stack
+- **HTML/CSS/JS** (vanilla)
+- **Web Workers** for parsing/extraction
+- **OpenXML** XLSX generator (custom, minimal ZIP writer)
+- **No backend, no analytics**
+
+---
+
+## 🔒 Security & Privacy
+This tool runs entirely **client‑side**. Neither your **JSON** nor exported files leave your browser. Always handle sensitive data according to your organization’s policies.
+
+---
+
+## 📄 License
 MIT © Purple Strike
+
+---
+
+## 🙏 Acknowledgements
+- Inspired by day‑to‑day threat hunting and OSINT workflows.
+- Shodan data model references their public JSON fields.
+
+---
+
+## ❓ FAQ
+**Q: Do counts include filtered‑out rows?**  
+A: No — the **Mini Summary** reflects **post‑filter** results only.
+
+**Q: Why are IP & Organization merged in XLSX?**  
+A: They’re host‑level attributes spanning multiple detail rows (e.g., many CVEs/domains per host). Merging keeps reports readable.
+
+**Q: CSV shows no merged cells — bug?**  
+A: CSV doesn’t support merged cells. Use **XLSX** for formatted reporting.
+
+**Q: How are domains normalized?**  
+A: Hostnames are reduced to a **registrable domain** using a compact public‑suffix list and lowercased; IP‑like strings are excluded by default.
