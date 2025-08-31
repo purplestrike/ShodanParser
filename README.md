@@ -102,32 +102,6 @@ Then visit `http://localhost:8080` and open `index.html`.
 
 ---
 
-## 📸 Screenshots
-> Replace with your own captures.
-- **Home / Editors / Toolbar**
-- **Live Preview with Grouping & Summary**
-- **XLSX in Excel with Merged IP/Org**
-
-```
-docs/
-  screenshots/
-    editor.png
-    preview.png
-    xlsx.png
-```
-
----
-
-## 🧪 Sample Data
-```jsonc
-// JSON Lines (NDJSON) — supported
-{"ip_str":"203.0.113.10","port":443,"org":"Example ISP","http":{"server":"nginx","host":"app.example.com","components":{"openssh":{}, "nginx":{}}},"opts":{"vulns":["CVE-2023-12345"]}}
-{"ip_str":"203.0.113.10","port":80,"http":{"host":"www.example.com"}}
-{"ip_str":"198.51.100.22","port":22,"org":"Example Org","data":[{"product":"OpenSSH","version":"8.4","port":22}]}
-```
-
----
-
 ## 🐞 Troubleshooting
 - **Workers blocked on file://** → Serve the folder locally (see _Quick Start_).
 - **“Invalid JSON — auto‑fix couldn’t recover.”** → Check if the file is truncated; try **Beautify** first.
