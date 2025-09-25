@@ -1,69 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Shodan Parser</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
+  <!-- Purple Strike logo -->
+  <a href="#" class="ps-logo-wrap" aria-label="Purple Strike">
+    <img src="https://github.com/purplestrike/ShodanParser/blob/main/purple_strike_logo_transparent.PNG" alt="Purple Strike logo" class="ps-logo">
+  </a>
+
+  <!-- Header -->
   <header>
-    <div class="logo">
-      <img src="./purple_strike_logo_transparent.PNG" alt="PurpleStrike Logo">
-      <h1>Shodan Parser</h1>
-    </div>
+    <h1>Shodan Parser</h1>
+    <p class="subtitle">
+      Convert messy Shodan JSON into clean, structured CSV.<br/>
+      Quickly filter, search (preview), and export insights (CSV/XLSX).
+    </p>
   </header>
 
-  <main>
-    <section class="controls">
-      <h2>Upload & Extract</h2>
-      <input type="file" id="fileInput" accept=".json" hidden>
-      <button id="btnUpload">📂 Upload JSON</button>
-      <button id="btnBeautify">✨ Beautify</button>
-      <button id="btnValidate">✔ Validate</button>
-      <button id="btnSearch">🔍 Search</button>
-      <button id="btnExtract">📊 Extract & Download</button>
-      <button id="btnClear">🧹 Clear</button>
-    </section>
+  <!-- Messages -->
+  <section id="messages" aria-live="polite"></section>
 
-    <section class="editor">
-      <textarea id="beautifyInput" placeholder="Paste JSON here..."></textarea>
-      <textarea id="beautifyOutput" readonly placeholder="Output..."></textarea>
-    </section>
+  <!-- Progress bar -->
+<div id="progressWrap" class="progress" style="display:none">
+  <div id="progressBar" class="progress__bar" style="width:0%"></div>
+  <!-- Either of these is fine -->
+  <div id="progressLabel" class="progress__text">0%</div>
+  <!-- or -->
+  <!-- <div id="progressText"  class="progress__text">0%</div> -->
+</div>
 
-    <section id="csvPreviewSection" style="display:none;">
-      <h2>CSV / XLSX Preview</h2>
-      <div id="csvPreview"></div>
-      <div class="downloads">
-        <a id="downloadLink" style="display:none;">Download CSV</a>
-        <a id="excelLink" style="display:none;">Download XLSX (merged)</a>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button id="btnBeautify" type="button">Beautify JSON</button>
+    <button id="btnValidate" type="button">Validate JSON</button>
+    <button id="btnUpload"   type="button">Upload JSON</button>
+
+    <!-- IMPORTANT: these ids are used by the script logic -->
+    <button id="btnSearch"   type="button">Search (Preview Only)</button>
+    <button id="btnClear"    type="button">Clear</button>
+    <button id="btnExtract"  type="button">Extract & Download</button>
+
+    <input type="file" id="fileInput" accept=".json" style="display:none" />
+    <a id="downloadLink" style="display:none">Download CSV</a>
+    <a id="excelLink" style="display:none">Download XLSX (merged)</a>
+  </div>
+
+  <!-- Field Selector -->
+  <div class="field-selector">
+    <strong>Quick Fields:</strong>
+    <label><input type="checkbox" id="field_ip" checked> IP</label>
+    <label><input type="checkbox" id="field_domain" checked> Domain(s)</label>
+    <label><input type="checkbox" id="field_ports" checked> Ports</label>
+    <label><input type="checkbox" id="field_city" checked> City</label>
+    <label><input type="checkbox" id="field_org" checked> Organization</label>
+    <label><input type="checkbox" id="field_vulns" checked> Vulnerabilities</label>
+    <label><input type="checkbox" id="field_webtech" checked> Products</label>
+    <label><input type="checkbox" id="field_versions" checked> Versions</label>
+  </div>
+
+  <!-- Filters -->
+  <section class="advanced">
+    <div class="advanced__row">
+      <div class="advanced__col">
+        <h3>Filters</h3>
+        <p class="muted">Include rows containing ALL of these terms (case-insensitive):</p>
+        <input id="includeFilter" class="textline" placeholder="e.g., 443; nginx; ssl" />
+        <p class="muted">Exclude rows containing ANY of these terms:</p>
+        <input id="excludeFilter" class="textline" placeholder="e.g., telnet; ftp" />
+        <div class="tiny muted">Terms are split by <code>;</code>. Filtering is applied to each CSV row string.</div>
       </div>
-    </section>
-
-    <section id="miniSummary" style="display:none;">
-      <h2>Summary</h2>
-      <ul>
-        <li>IPs: <span id="sum_ip">0</span></li>
-        <li>Domains: <span id="sum_domains">0</span></li>
-        <li>Ports: <span id="sum_ports">0</span></li>
-        <li>Cities: <span id="sum_cities">0</span></li>
-        <li>Organizations: <span id="sum_orgs">0</span></li>
-        <li>Vulnerabilities: <span id="sum_vulns">0</span></li>
-        <li>Products: <span id="sum_products">0</span></li>
-        <li>Versions: <span id="sum_versions">0</span></li>
-        <li>Web Tech: <span id="sum_webtech">0</span></li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Messages</h2>
-      <div id="messages"></div>
-    </section>
-
-    <div id="progressWrap" class="progress">
-      <div id="progressBar"></div>
-      <div id="progressLabel">0%</div>
     </div>
+  </section>
+
+  <!-- Editors -->
+  <main class="editor">
+    <textarea id="beautifyInput" placeholder="Paste Shodan JSON here..."></textarea>
+    <textarea id="beautifyOutput" placeholder="Beautified/validation output..." readonly></textarea>
   </main>
+
+  <!-- Summary -->
+  <section id="miniSummary" style="display:none; padding:0.6rem 1rem;">
+    <div class="summary-grid">
+      <div class="pill">IP: <span id="sum_ip">0</span></div>
+      <div class="pill">Domain(s): <span id="sum_domains">0</span></div>
+      <div class="pill">Ports: <span id="sum_ports">0</span></div>
+      <div class="pill">City: <span id="sum_cities">0</span></div>
+      <div class="pill">Organization: <span id="sum_orgs">0</span></div>
+      <div class="pill">Vulnerabilities: <span id="sum_vulns">0</span></div>
+      <div class="pill">Products: <span id="sum_products">0</span></div>
+      <div class="pill">Versions: <span id="sum_versions">0</span></div>
+      <div class="pill">Web Tech: <span id="sum_webtech">0</span></div>
+    </div>
+  </section>
+
+  <!-- Preview -->
+  <section id="csvPreviewSection" style="display:none; padding: 1rem;">
+    <h2>Preview</h2>
+    <div id="csvPreview"></div>
+  </section>
+
+  <!-- Error details -->
+  <details id="errorDetails" class="error-details" style="display:none;">
+    <summary>Parser error details</summary>
+    <pre id="errorDump"></pre>
+  </details>
 
   <script src="script.js"></script>
 </body>
