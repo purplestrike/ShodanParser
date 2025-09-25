@@ -2,24 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Shodan Parser</title>
+  <base href="./"><!-- ensure relative paths resolve under /ShodanParser/ -->
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <!-- Purple Strike logo -->
-  <a href="#" class="ps-logo-wrap" aria-label="Purple Strike">
-    <img src="https://github.com/purplestrike/ShodanParser/blob/main/purple_strike_logo_transparent.PNG" alt="Purple Strike logo" class="ps-logo">
-  </a>
-
-  <!-- Header -->
   <header>
-    <h1>Shodan Parser</h1>
-    <p class="subtitle">
-      Convert messy Shodan JSON into clean, structured CSV.<br/>
-      Quickly filter, search (preview), and export insights (CSV/XLSX).
-    </p>
+    <a class="logo" href="./" title="Shodan Parser">
+      <img
+        id="brandLogo"
+        src="./purple_strike_logo_transparent.PNG"
+        alt="Purple Strike logo"
+        style="height:48px;width:auto;display:block;border-radius:6px"
+        onerror="(function(img){
+          if(!img.dataset.step){ img.dataset.step='lower'; img.src='./purple_strike_logo_transparent.png'; return; }
+          if(img.dataset.step==='lower'){ img.dataset.step='raw'; img.src='https://raw.githubusercontent.com/purplestrike/ShodanParser/main/purple_strike_logo_transparent.PNG'; return; }
+        })(this)"
+      />
+      <h1>Shodan Parser</h1>
+    </a>
   </header>
 
   <!-- Messages -->
