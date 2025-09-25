@@ -37,16 +37,21 @@ Security researchers often export Shodan results as large, messy JSON. ShodanPar
 - Supports **NDJSON/JSON Lines**.
 - Same beautify + validation pipeline applies.
 
-### 🎛️ 4) Quick Field Toggles
-Extract only what you need:
-- **IP** (`ip_str`)
-- **Domain(s)** (hostnames, domains, HTTP host)
-- **Ports**
-- **City** (`location.city`)
-- **Organization** (org/isp/asn)
-- **Vulnerabilities** (CVE list)
-- **Web Technologies** (products/components/server banners)
-- **Versions** (software/service versions)
+### 📦 4) Extracted Fields
+
+You choose the columns; the tool builds rows and expands multi-values when needed.
+
+- **IP** — `ip_str` or numeric IP converted to dotted quad  
+- **Domain(s)** — registrable roots from hostnames/domains/http.host (deduped)  
+- **Ports** — union of `port` across host/services  
+- **City** — `location.city` (if present)  
+- **Organization** — best of `org` / `isp` / `asn`  
+- **Vulnerabilities** — CVE list (normalized to `CVE-YYYY-NNNN`)  
+- **Product** — service banner products (incl. `http.server`)  
+- **Web Technologies** — `http.components` keys (deduped)  
+- **Versions** — version parsed from product/banner (fallbacks handled)  
+- **CVSS** — best available score per CVE (cvssv3.base_score → cvss → empty)  
+- **Timestamp** — host’s observed time (prefers `last_update` → `timestamp` → `last_seen`)
 
 ### 🔎 5) Powerful Filtering
 - **Include** filter → Row must contain **all** terms.

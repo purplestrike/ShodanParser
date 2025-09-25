@@ -83,20 +83,38 @@ function autoFixJSON(raw){
   return {ok:false};
 }
 
+/* ======== Vulnerability extraction (robust) ======== */
 function collectVulnsFromEntity(ent){
   const out = new Set();
   const add = (s) => {
     if (!s) return;
     s = String(s).trim();
     if (!s) return;
-    if (/^cve-\d{4}-\d{4,7}$/i.test(s)) out.add(s.toUpperCase());
-    else out.add(s);
+    if (/^cve-\d{4}-\d{4,7}$/i.test(s)) s = s.toUpperCase();
+    out.add(s);
   };
-  if (ent && ent.opts && Array.isArray(ent.opts.vulns) && ent.opts.vulns.length){
-    ent.opts.vulns.forEach(add);
+
+  if (!ent) return [];
+
+  if (Array.isArray(ent.vulns) && ent.vulns.length){
+    ent.vulns.forEach(add);
+  } else if (ent.vulns && typeof ent.vulns === "object" && !Array.isArray(ent.vulns)){
+    Object.keys(ent.vulns).forEach(k => add(k));
+  } else if (typeof ent.vulns === "string" && ent.vulns.trim()){
+    add(ent.vulns);
   }
+
+  if (ent.opts && ent.opts.vulns){
+    if (Array.isArray(ent.opts.vulns)) ent.opts.vulns.forEach(add);
+    else if (typeof ent.opts.vulns === "object") Object.keys(ent.opts.vulns).forEach(k => add(k));
+    else if (typeof ent.opts.vulns === "string") add(ent.opts.vulns);
+  }
+
+  if (ent.vuln && typeof ent.vuln === "string") add(ent.vuln);
+
   return Array.from(out);
 }
+/* ======== end vuln collection ======== */
 
 function splitTerms(v){ return (v||"").split(";").map(s=>s.trim().toLowerCase()).filter(Boolean); }
 function passesBasicTerms(rowArray, incTerms, excTerms){
@@ -118,6 +136,35 @@ function buildHeaders(flags){
   if (includeProdAndTech){ headers.push("Product"); headers.push("Web Technologies"); }
   if (includeVersions) headers.push("Versions");
   return headers;
+}
+
+/* ====== Version extraction helper (same heuristics as main script) ====== */
+function extractVersionFromProduct(product, explicitVersion){
+  if(explicitVersion && String(explicitVersion).trim()) return String(explicitVersion).trim();
+  if(!product) return "";
+  const s = String(product).trim();
+
+  const patterns = [
+    /\/v?(\d+(?:[.\-][\w]+)*)/i,
+    /\bversion[:\s]*v?(\d+(?:[.\-][\w]+)*)\b/i,
+    /\b(v?)(\d+\.\d+(?:\.\d+)?(?:[.\-][\w]+)*)\b/i,
+    /\b(v?)(\d+(?:[.\-]\d+)+[a-z0-9]*)\b/i,
+    / ([0-9]{1,4}(?:\.[0-9a-zA-Z_-]+)+)\b/
+  ];
+
+  for(let p of patterns){
+    const m = p.exec(s);
+    if(m){
+      for(let gi=1; gi<m.length; gi++){
+        if(m[gi] && /[0-9]/.test(m[gi])) return m[gi];
+      }
+    }
+  }
+
+  const fallback = s.match(/(\d+(?:\.\d+){1,})/);
+  if(fallback) return fallback[1];
+
+  return "";
 }
 
 function extractGroups(data, flags, includeFilter, excludeFilter){
@@ -147,7 +194,6 @@ function extractGroups(data, flags, includeFilter, excludeFilter){
   const total = data.length || 1;
 
   data.forEach((item, idx)=>{
-    // progress budget: from ~35% (upload/ready) to ~95% across items
     const pct = 35 + Math.floor((idx/total) * 60);
     if (idx % 25 === 0) postProgress(pct);
 
@@ -184,8 +230,12 @@ function extractGroups(data, flags, includeFilter, excludeFilter){
     if (flags.includeVulns){
       const vset = new Set();
       collectVulnsFromEntity(item).forEach(x => vset.add(x));
+      if (item.opts) collectVulnsFromEntity(item.opts).forEach(x => vset.add(x));
       if (Array.isArray(item.data)){
-        item.data.forEach(svc => collectVulnsFromEntity(svc).forEach(x => vset.add(x)));
+        item.data.forEach(svc => {
+          collectVulnsFromEntity(svc).forEach(x => vset.add(x));
+          if (svc && svc.opts) collectVulnsFromEntity(svc.opts).forEach(x => vset.add(x));
+        });
       }
       vulns = Array.from(vset);
     }
@@ -196,14 +246,17 @@ function extractGroups(data, flags, includeFilter, excludeFilter){
       if (Array.isArray(item.data)){
         item.data.forEach(svc=>{
           if (svc && svc.product){
+            const v = extractVersionFromProduct(svc.product, svc.version);
             products.push(String(svc.product));
-            versions.push(svc.version ? String(svc.version) : "");
+            versions.push(v ? String(v) : (svc.version?String(svc.version):""));
           }
         });
       }
       if (item.http && item.http.server){
-        products.push(String(item.http.server));
-        versions.push("");
+        const serverText = String(item.http.server);
+        const v = extractVersionFromProduct(serverText, "");
+        products.push(serverText);
+        versions.push(v || "");
       }
       if (item.http && item.http.components){
         const comps = item.http.components;
@@ -211,7 +264,6 @@ function extractGroups(data, flags, includeFilter, excludeFilter){
         for (const name in comps){ if (Object.prototype.hasOwnProperty.call(comps,name)) techs.push(name); }
         webTech = Array.from(new Set(techs.map(t => String(t).trim().toLowerCase()).filter(Boolean)));
       }
-      // de-dupe keep versions aligned
       (function dedup(){
         const seen=new Set(), p=[], v=[];
         for (let i=0;i<products.length;i++){
@@ -237,12 +289,12 @@ function extractGroups(data, flags, includeFilter, excludeFilter){
     const candidates=[];
     for (let i=0;i<rowCount;i++){
       const row=[];
-      if (flags.includeIP)       row.push(i===0?ipVal:"");
-      if (flags.includeDomain)   row.push(domains[i]||"");
-      if (flags.includePorts)    row.push(ports[i]||"");
-      if (flags.includeCity)     row.push(cities[i]||"");
-      if (flags.includeOrg)      row.push(i===0?orgVal:"");
-      if (flags.includeVulns)    row.push(vulns[i]||"");
+      if (flags.includeIP) row.push(i===0?ipVal:"");
+      if (flags.includeDomain) row.push(domains[i]||"");
+      if (flags.includePorts) row.push(ports[i]||"");
+      if (flags.includeCity) row.push(cities[i]||"");
+      if (flags.includeOrg) row.push(i===0?orgVal:"");
+      if (flags.includeVulns) row.push(vulns[i]||"");
       if (flags.includeProdAndTech){ row.push(products[i]||""); row.push(webTech[i]||""); }
       if (flags.includeVersions) row.push(products[i] ? (versions[i]||"") : "");
       candidates.push(row);
@@ -250,7 +302,6 @@ function extractGroups(data, flags, includeFilter, excludeFilter){
 
     const kept = candidates.filter(r => passesBasicTerms(r, splitTerms(includeFilter), splitTerms(excludeFilter)));
 
-    // summary updates
     function addToSummary(r){
       if (flags.includeIP && idxMap.ip!=null && r[idxMap.ip]) summary.ips.add(r[idxMap.ip]);
       if (flags.includeDomain && idxMap.dom!=null && r[idxMap.dom]) summary.domains.add(r[idxMap.dom]);
@@ -264,30 +315,14 @@ function extractGroups(data, flags, includeFilter, excludeFilter){
     }
 
     if (!kept.length){
-      // unique_pre_filter/per_host behaviors (same logic as earlier)
-      // For brevity, we won't duplicate all branches; the main mode is unique_post_filter
       return;
     }
-
-    const headersForIdx = headers || buildHeaders(flags);
-    const idxMap = {};
-    headersForIdx.forEach((h,i)=>{
-      if (h==="IP") idxMap.ip=i;
-      if (h==="Domain(s)") idxMap.dom=i;
-      if (h==="Ports") idxMap.ports=i;
-      if (h==="City") idxMap.city=i;
-      if (h==="Organization") idxMap.org=i;
-      if (h==="Vulnerabilities") idxMap.vuln=i;
-      if (h==="Product") idxMap.prod=i;
-      if (h==="Web Technologies") idxMap.web=i;
-      if (h==="Versions") idxMap.ver=i;
-    });
 
     kept.forEach(addToSummary);
     groups.push({ rows: kept });
   });
 
-  postProgress(95); // near done
+  postProgress(95);
 
   const toCount = o => o.size;
   return {
