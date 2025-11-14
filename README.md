@@ -148,14 +148,6 @@ Counts are computed **after filters**, so they match exactly what you see.
 
 ---
 
-## 🌐 Deploy on GitHub Pages
-1. Push to GitHub (branch: `main`).  
-2. Repo → **Settings** → **Pages** → **Deploy from a branch** → `main` / root.  
-3. Your app will be available at:  
-   `https://purplestrike.github.io/ShodanParser/`
-
----
-
 ## 🤝 Contributing
 PRs are welcome! Open an issue for bugs/ideas.
 
